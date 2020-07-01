@@ -10,14 +10,15 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk11"))
+    implementation(kotlin("stdlib-jdk8"))
+    testImplementation(kotlin("test-junit"))
 }
 
 tasks {
     compileKotlin {
-        kotlinOptions.jvmTarget = "11"
+        kotlinOptions.jvmTarget = "1.8"
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "11"
+        kotlinOptions.jvmTarget = "1.8"
     }
 }
