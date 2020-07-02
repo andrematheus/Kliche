@@ -10,20 +10,11 @@ import kotlin.test.assertEquals
 
 internal class HelloWorldSiteTest {
     private val sitePort = Random.nextInt(5000..9000)
-    private val siteConfiguration = """
-        title = "Hello world kliche site"
+    private val siteConfiguration = javaClass
+        .getResourceAsStream("/hello-world-site/kliche.toml").bufferedReader().readText()
 
-        [sources]
-
-        [sources.static-source]
-        type = "static"
-
-        [[sources.static-source.routes]]
-        path = "/"
-        content = "Hello, world!"
-    """.trimIndent()
-
-    private val site = Site("localhost", sitePort, TomlStringConfiguration(siteConfiguration))
+    private val site =
+        Site("localhost", sitePort, TomlStringConfiguration(siteConfiguration))
     private val client = Client.forSite(site)
 
     @Test

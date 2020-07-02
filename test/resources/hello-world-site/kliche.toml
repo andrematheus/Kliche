@@ -1,0 +1,10 @@
+title = "Hello world kliche site"
+
+[sources]
+
+[sources.static-source]
+type = "static"
+
+[[sources.static-source.routes]]
+path = "/"
+content = "Hello, world!"
