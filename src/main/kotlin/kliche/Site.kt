@@ -7,10 +7,10 @@ import io.undertow.server.HttpServerExchange
 class Site(
     private val host: String,
     private val port: Int,
-    setup: SiteSetup.() -> Unit
+    configuration: SiteConfiguration
 ) : HttpHandler {
 
-    private val sources = SiteSetup().also(setup).sources
+    private val sources = configuration.sources
     private val undertow: Undertow = Undertow.builder()
         .addHttpListener(port, host, this)
         .build()
@@ -28,8 +28,7 @@ class Site(
 
     override fun handleRequest(exchange: HttpServerExchange) {
         val response = this.sources
-            .filter { it.handles(exchange.requestPath) }
-            .firstOrNull()
+            .firstOrNull { it.handles(exchange.requestPath) }
             ?.handle(exchange.requestPath)
         if (response != null) {
             exchange.statusCode = 200
