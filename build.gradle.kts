@@ -18,6 +18,19 @@ dependencies {
     testImplementation("com.github.kittinunf.fuel", "fuel", "2.2.3")
 }
 
+sourceSets {
+    main {
+        java {
+            setSrcDirs(listOf<String>())
+        }
+    }
+    test {
+        java {
+            setSrcDirs(listOf<String>())
+        }
+    }
+}
+
 tasks {
     compileKotlin {
         kotlinOptions.jvmTarget = "1.8"
