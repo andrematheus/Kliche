@@ -2,13 +2,22 @@ package kliche
 
 import org.tomlj.Toml
 import org.tomlj.TomlTable
+import java.nio.file.Path
 
 interface SiteConfiguration {
     val sources: List<Source>
 }
 
+class TomlFileConfiguration(
+    configurationFilePath: Path,
+    tomlStringConfiguration: TomlStringConfiguration = TomlStringConfiguration(
+        configurationFilePath.toFile().bufferedReader().readText()
+    )
+) : SiteConfiguration by tomlStringConfiguration
+
 class TomlStringConfiguration(configuration: String) :
     SiteConfiguration {
+
     private val result = Toml.parse(configuration)
 
     init {

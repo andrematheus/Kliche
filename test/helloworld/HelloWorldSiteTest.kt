@@ -1,20 +1,21 @@
 package helloworld
 
 import kliche.Site
-import kliche.TomlStringConfiguration
+import kliche.TomlFileConfiguration
 import org.junit.Test
 import tools.client.Client
+import java.nio.file.Path
 import kotlin.random.Random
 import kotlin.random.nextInt
 import kotlin.test.assertEquals
 
 internal class HelloWorldSiteTest {
     private val sitePort = Random.nextInt(5000..9000)
-    private val siteConfiguration = javaClass
-        .getResourceAsStream("/hello-world-site/kliche.toml").bufferedReader().readText()
+    private val configurationFilePath = Path.of(javaClass
+        .getResource("/hello-world-site/kliche.toml").toURI())
 
     private val site =
-        Site("localhost", sitePort, TomlStringConfiguration(siteConfiguration))
+        Site("localhost", sitePort, TomlFileConfiguration(configurationFilePath))
     private val client = Client.forSite(site)
 
     @Test
