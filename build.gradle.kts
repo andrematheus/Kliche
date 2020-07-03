@@ -15,8 +15,7 @@ dependencies {
     implementation("org.tomlj", "tomlj", "1.0.0")
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter", "junit-jupiter", "5.6.2")
-    testImplementation("com.github.kittinunf.result", "result", "3.0.1")
-    testImplementation("com.github.kittinunf.fuel", "fuel", "2.2.3")
+    testImplementation("io.github.rybalkinsd", "kohttp", "0.12.0")
 }
 
 sourceSets {

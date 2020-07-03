@@ -3,12 +3,13 @@ package kliche
 import io.undertow.Undertow
 import io.undertow.server.HttpHandler
 import io.undertow.server.HttpServerExchange
+import io.undertow.util.StatusCodes
 
 class Site(
     configuration: SiteConfiguration
 ) : HttpHandler {
-    val host: String  = configuration.host
-    val port: Int = configuration.port
+    private val host: String  = configuration.host
+    private val port: Int = configuration.port
 
     private val sources = configuration.sources
     private val undertow: Undertow = Undertow.builder()
@@ -31,8 +32,11 @@ class Site(
             .firstOrNull { it.handles(exchange.requestPath) }
             ?.handle(exchange.requestPath)
         if (response != null) {
-            exchange.statusCode = 200
+            exchange.statusCode = StatusCodes.OK
             exchange.responseSender.send(response)
+        } else {
+            exchange.statusCode = StatusCodes.NOT_FOUND
+            exchange.responseSender.send(StatusCodes.NOT_FOUND_STRING)
         }
     }
 }

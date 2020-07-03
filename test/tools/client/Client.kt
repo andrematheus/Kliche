@@ -1,15 +1,14 @@
 package tools.client
 
-import com.github.kittinunf.fuel.httpGet
+import io.github.rybalkinsd.kohttp.ext.httpGet
 import kliche.Site
 import java.io.Closeable
 
 class Client(private val site: Site) {
     class ClientOps(private val site: Site) {
         fun get(path: String): Response {
-            val (_, _, result) = "${site.baseUri}${path}".httpGet()
-                .responseString()
-            return Response(result.get())
+            val response = "${site.baseUri}${path}".httpGet()
+            return Response(response.code(), response.body()?.string() ?: "")
         }
     }
 
