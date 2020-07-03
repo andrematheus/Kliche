@@ -38,7 +38,7 @@ class TomlStringConfiguration(configuration: String) :
     private fun sourceFromConfiguration(it: TomlTable): Source {
         val type = it.getString("type")
         // TODO: throw specific exception unknown type is passed
-        assert(type == "static")
+        assert(type == "embedded")
         // TODO: throw specific exception instead of !!
         val routes = it.getArray("routes")!!
         val routesMap = mutableMapOf<String, String>()

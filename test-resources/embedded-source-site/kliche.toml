@@ -1,0 +1,10 @@
+title = "Embedded source example kliche site"
+
+[sources]
+
+[sources.embedded-source]
+type = "embedded"
+
+[[sources.embedded-source.routes]]
+path = "/"
+content = "Hello, world!"
