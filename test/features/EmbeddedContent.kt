@@ -2,12 +2,12 @@ package features
 
 import org.junit.jupiter.api.Test
 import tools.client.Client
-import tools.factories.siteFromResourceConfigurationFile
+import tools.factories.Factories
 import kotlin.test.assertEquals
 
 internal class EmbeddedContent {
     private val site =
-        siteFromResourceConfigurationFile("/embedded-source-site/kliche.toml")
+        Factories.siteFromResourceConfigurationFile("/embedded-source-site/kliche.toml")
 
     private val client = Client.forSite(site)
 
