@@ -41,8 +41,9 @@ class TomlStringConfiguration(configuration: String) :
 
     private fun sourceFromConfiguration(it: TomlTable): Source {
         val type = it.getString("type")
-        // TODO: throw specific exception unknown type is passed
-        assert(type == "embedded")
+        if (type != "embedded") {
+            throw InvalidSiteConfiguration("Invalid type: $type")
+        }
         // TODO: throw specific exception instead of !!
         val routes = it.getArray("routes")!!
         val routesMap = mutableMapOf<String, String>()
@@ -55,6 +56,6 @@ class TomlStringConfiguration(configuration: String) :
             val content = it.getString("content")!!
             routesMap[path] = content
         }
-        return StaticSource(routesMap.toMap())
+        return EmbeddedSource(routesMap.toMap())
     }
 }

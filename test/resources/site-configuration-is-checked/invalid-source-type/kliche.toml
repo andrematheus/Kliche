@@ -1,0 +1,8 @@
+title = "Embedded source example kliche site"
+host = "localhost"
+port = 9300
+
+[sources]
+
+[sources.embedded-source]
+type = "<<INVALID-TYPE>>"
