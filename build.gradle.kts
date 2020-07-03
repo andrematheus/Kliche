@@ -21,11 +21,11 @@ dependencies {
 sourceSets {
     main {
         java.srcDir(listOf("main"))
-        resources.srcDir(listOf("resources"))
+        resources.srcDir(listOf("main/resources"))
     }
     test {
         java.srcDir(listOf("test"))
-        resources.srcDir(listOf("test-resources"))
+        resources.srcDir(listOf("test/resources"))
     }
 }
 
