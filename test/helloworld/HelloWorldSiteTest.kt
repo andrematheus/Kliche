@@ -2,7 +2,7 @@ package helloworld
 
 import kliche.Site
 import kliche.TomlFileConfiguration
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import tools.client.Client
 import java.nio.file.Path
 import kotlin.random.Random
