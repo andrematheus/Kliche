@@ -5,6 +5,8 @@ import org.tomlj.TomlTable
 import java.nio.file.Path
 
 interface SiteConfiguration {
+    val host: String
+    val port: Int
     val sources: List<Source>
 }
 
@@ -19,6 +21,8 @@ class TomlStringConfiguration(configuration: String) :
     SiteConfiguration {
 
     private val result = Toml.parse(configuration)
+    override val host = result.getString("host")!!
+    override val port = result.getLong("port")!!.toInt()
 
     init {
         // TODO throw specific exception when toml has errors

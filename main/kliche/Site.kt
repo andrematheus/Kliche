@@ -5,10 +5,10 @@ import io.undertow.server.HttpHandler
 import io.undertow.server.HttpServerExchange
 
 class Site(
-    private val host: String,
-    private val port: Int,
     configuration: SiteConfiguration
 ) : HttpHandler {
+    val host: String  = configuration.host
+    val port: Int = configuration.port
 
     private val sources = configuration.sources
     private val undertow: Undertow = Undertow.builder()

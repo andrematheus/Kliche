@@ -11,8 +11,6 @@ fun siteFromResourceConfigurationFile(resourceFilePath: String): Site {
         Site::class.java.getResource(resourceFilePath).toURI()
     )
     return Site(
-        "localhost",
-        Random.nextInt(5000..9000),
         TomlFileConfiguration(configurationFilePath)
     )
 }
