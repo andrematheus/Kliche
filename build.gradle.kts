@@ -16,6 +16,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter", "junit-jupiter", "5.6.2")
     testImplementation("io.github.rybalkinsd", "kohttp", "0.12.0")
+    testImplementation("commons-io", "commons-io", "2.7")
 }
 
 sourceSets {

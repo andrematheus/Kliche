@@ -6,8 +6,7 @@ import tools.factories.Factories
 import kotlin.test.assertEquals
 
 internal class SiteShowsEmbeddedContent {
-    private val site =
-        Factories.siteFromResourcePath("/embedded-source-site")
+    private val site = Factories.siteFromResourcePath("/embedded-source-site")
 
     private val client = Client.forSite(site)
 
