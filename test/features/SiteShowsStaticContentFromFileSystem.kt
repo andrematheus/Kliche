@@ -6,7 +6,7 @@ import tools.factories.Factories
 import kotlin.test.assertEquals
 
 class SiteShowsStaticContentFromFileSystem {
-    private val site = Factories.siteFromResourcePath("/static-source-site/")
+    private val site = Factories.siteFromResourcePath("/static-content-site/")
 
     private val client = Client.forSite(site)
 

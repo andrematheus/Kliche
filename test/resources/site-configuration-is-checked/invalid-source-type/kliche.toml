@@ -2,7 +2,7 @@ title = "Embedded source example kliche site"
 host = "localhost"
 port = 9300
 
-[sources]
+[providers]
 
-[sources.embedded-source]
+[providers.embedded]
 type = "<<INVALID-TYPE>>"

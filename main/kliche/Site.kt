@@ -16,7 +16,7 @@ class Site(
     private val host: String = configuration.host
     private val port: Int = configuration.port
 
-    private val sources = configuration.sources
+    private val providers = configuration.contentProviders
     private val undertow: Undertow = Undertow.builder()
         .addHttpListener(port, host, this)
         .build()
@@ -33,9 +33,9 @@ class Site(
         get() = "http://${host}:${port}"
 
     override fun handleRequest(exchange: HttpServerExchange) {
-        val response = this.sources
-            .firstOrNull { it.handles(exchange.requestPath) }
-            ?.handle(exchange.requestPath)
+        val response = this.providers
+            .firstOrNull { it.has(exchange.requestPath) }
+            ?.get(exchange.requestPath)
         if (response != null) {
             exchange.statusCode = StatusCodes.OK
             exchange.responseSender.send(response)

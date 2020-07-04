@@ -7,7 +7,7 @@ import java.nio.file.Path
 interface SiteConfiguration {
     val host: String
     val port: Int
-    val sources: List<Source>
+    val contentProviders: List<ContentProvider>
 }
 
 class TomlFileConfiguration(
@@ -34,26 +34,26 @@ class TomlStringConfiguration(
         assert(!result.hasErrors())
     }
 
-    override val sources: List<Source>
+    override val contentProviders: List<ContentProvider>
         get() {
             // TODO: throw specific exception instead of !!
-            val sourcesTable: TomlTable = result.getTable("sources")!!
+            val sourcesTable: TomlTable = result.getTable("providers")!!
             return sourcesTable.keySet().map {
                 // TODO: throw specific exception instead of !!
                 this.sourceFromConfiguration(sourcesTable.getTable(it)!!)
             }
         }
 
-    private fun sourceFromConfiguration(it: TomlTable): Source {
+    private fun sourceFromConfiguration(it: TomlTable): ContentProvider {
         val type = it.getString("type")
         return when (type) {
-            "embedded" -> this.buildEmbeddedSourceFromConfiguration(it)
-            "static" -> this.buildStaticSourceFromConfiguration(it)
+            "embedded" -> this.buildEmbeddedProviderFromConfiguration(it)
+            "static" -> this.buildStaticProviderFromConfiguration(it)
             else -> throw InvalidSiteConfiguration("Invalid type: $type")
         }
     }
 
-    private fun buildEmbeddedSourceFromConfiguration(it: TomlTable): EmbeddedSource {
+    private fun buildEmbeddedProviderFromConfiguration(it: TomlTable): EmbeddedContentProvider {
         // TODO: throw specific exception instead of !!
         val routes = it.getArray("routes")!!
         val routesMap = mutableMapOf<String, String>()
@@ -66,13 +66,13 @@ class TomlStringConfiguration(
             val content = it.getString("content")!!
             routesMap[path] = content
         }
-        return EmbeddedSource(routesMap.toMap())
+        return EmbeddedContentProvider(routesMap.toMap())
     }
 
-    private fun buildStaticSourceFromConfiguration(it: TomlTable): StaticSource {
+    private fun buildStaticProviderFromConfiguration(it: TomlTable): StaticContentProvider {
         // TODO: throw specific exception instead of !!
         val path = it.getString("path")!!
-        return StaticSource(basePath.resolve(path))
+        return StaticContentProvider(basePath.resolve(path))
     }
 }
 
