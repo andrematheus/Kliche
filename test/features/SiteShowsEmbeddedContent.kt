@@ -1,8 +1,8 @@
 package features
 
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import tools.FeatureWithExampleSite
-import kotlin.test.assertEquals
 
 internal class SiteShowsEmbeddedContent: FeatureWithExampleSite("/embedded-source-site") {
     @Test

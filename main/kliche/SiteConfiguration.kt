@@ -90,9 +90,11 @@ class TomlStringConfiguration(
             // TODO: throw specific exception instead of !!
             val compilerTable: TomlTable = compilersTable.getTable(it)!!
             val type = compilerTable.getString("type")
-            // TODO: check type
-            assert(type == "markdown")
-            SourceFileMarkdownCompiler()
+            when (type) {
+                "markdown" -> SourceFileMarkdownCompiler()
+                "jade" -> SourceFileJadeCompiler()
+                else -> throw InvalidSiteConfiguration("Invalid compiler type: $type")
+            }
         }!!
     }
 }

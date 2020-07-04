@@ -1,0 +1,12 @@
+title = "Static source example kliche site"
+host = "localhost"
+port = 9300
+
+[providers]
+
+[providers.source-files]
+type = "source-files"
+path = "whatever"
+
+[providers.source-files.compilers.invalid]
+type = "<<INVALID>>"

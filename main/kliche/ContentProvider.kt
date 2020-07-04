@@ -1,5 +1,6 @@
 package kliche
 
+import de.neuland.jade4j.Jade4J
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import java.io.IOException
@@ -87,4 +88,19 @@ class SourceFileMarkdownCompiler : SourceFileCompiler {
         return renderer.render(document)
     }
 
+}
+
+class SourceFileJadeCompiler : SourceFileCompiler {
+    override fun accepts(file: Path): Boolean {
+        return file.toFile().extension == "jade"
+    }
+
+    override fun generatedFileName(file: Path): Path {
+        return Path.of(file.toFile().parent)
+            .resolve(file.toFile().nameWithoutExtension + ".html")
+    }
+
+    override fun compile(file: Path): String {
+        return Jade4J.render(file.toFile().absolutePath, mapOf())
+    }
 }

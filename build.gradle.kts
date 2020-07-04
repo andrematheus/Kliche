@@ -14,7 +14,8 @@ dependencies {
     implementation("io.undertow", "undertow-core", "2.1.3.Final")
     implementation("org.tomlj", "tomlj", "1.0.0")
     implementation("com.atlassian.commonmark", "commonmark", "0.15.0")
-    testImplementation(kotlin("test"))
+    implementation("de.neuland-bfi", "jade4j", "1.3.2")
+
     testImplementation("org.junit.jupiter", "junit-jupiter", "5.6.2")
     testImplementation("io.github.rybalkinsd", "kohttp", "0.12.0")
     testImplementation("commons-io", "commons-io", "2.7")
