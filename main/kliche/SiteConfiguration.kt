@@ -75,3 +75,5 @@ class TomlStringConfiguration(
         return StaticSource(basePath.resolve(path))
     }
 }
+
+class InvalidSiteConfiguration(reason: String) : Throwable(reason)
