@@ -1,0 +1,9 @@
+title = "Static source example kliche site"
+host = "localhost"
+port = 9300
+
+[sources]
+
+[sources.static-source]
+type = "static"
+path = "static-files"

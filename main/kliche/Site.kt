@@ -4,11 +4,16 @@ import io.undertow.Undertow
 import io.undertow.server.HttpHandler
 import io.undertow.server.HttpServerExchange
 import io.undertow.util.StatusCodes
+import java.nio.file.Path
 
 class Site(
-    configuration: SiteConfiguration
+    sitePath: Path,
+    configuration: SiteConfiguration = TomlFileConfiguration(
+        sitePath
+    )
 ) : HttpHandler {
-    private val host: String  = configuration.host
+
+    private val host: String = configuration.host
     private val port: Int = configuration.port
 
     private val sources = configuration.sources

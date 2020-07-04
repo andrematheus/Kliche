@@ -11,13 +11,18 @@ interface SiteConfiguration {
 }
 
 class TomlFileConfiguration(
-    configurationFilePath: Path,
+    basePath: Path,
+    configurationFilePath: Path = basePath.resolve("kliche.toml"),
     tomlStringConfiguration: TomlStringConfiguration = TomlStringConfiguration(
+        basePath,
         configurationFilePath.toFile().bufferedReader().readText()
     )
 ) : SiteConfiguration by tomlStringConfiguration
 
-class TomlStringConfiguration(configuration: String) :
+class TomlStringConfiguration(
+    private val basePath: Path,
+    configuration: String
+) :
     SiteConfiguration {
 
     private val result = Toml.parse(configuration)
@@ -41,9 +46,14 @@ class TomlStringConfiguration(configuration: String) :
 
     private fun sourceFromConfiguration(it: TomlTable): Source {
         val type = it.getString("type")
-        if (type != "embedded") {
-            throw InvalidSiteConfiguration("Invalid type: $type")
+        return when (type) {
+            "embedded" -> this.buildEmbeddedSourceFromConfiguration(it)
+            "static" -> this.buildStaticSourceFromConfiguration(it)
+            else -> throw InvalidSiteConfiguration("Invalid type: $type")
         }
+    }
+
+    private fun buildEmbeddedSourceFromConfiguration(it: TomlTable): EmbeddedSource {
         // TODO: throw specific exception instead of !!
         val routes = it.getArray("routes")!!
         val routesMap = mutableMapOf<String, String>()
@@ -57,5 +67,11 @@ class TomlStringConfiguration(configuration: String) :
             routesMap[path] = content
         }
         return EmbeddedSource(routesMap.toMap())
+    }
+
+    private fun buildStaticSourceFromConfiguration(it: TomlTable): StaticSource {
+        // TODO: throw specific exception instead of !!
+        val path = it.getString("path")!!
+        return StaticSource(basePath.resolve(path))
     }
 }

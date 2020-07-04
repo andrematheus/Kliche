@@ -8,12 +8,9 @@ import kotlin.random.nextInt
 
 class Factories {
     companion object {
-        fun siteFromResourceConfigurationFile(resourceFilePath: String): Site {
-            val configurationFilePath = Path.of(
-                Site::class.java.getResource(resourceFilePath).toURI()
-            )
+        fun siteFromResourcePath(resourcePath: String): Site {
             return Site(
-                TomlFileConfiguration(configurationFilePath)
+                Path.of(Site::class.java.getResource(resourcePath).toURI())
             )
         }
     }

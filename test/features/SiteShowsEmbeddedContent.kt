@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 
 internal class SiteShowsEmbeddedContent {
     private val site =
-        Factories.siteFromResourceConfigurationFile("/embedded-source-site/kliche.toml")
+        Factories.siteFromResourcePath("/embedded-source-site")
 
     private val client = Client.forSite(site)
 

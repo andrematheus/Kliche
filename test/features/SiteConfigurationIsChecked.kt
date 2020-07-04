@@ -9,8 +9,8 @@ class SiteConfigurationIsChecked {
     @Test
     internal fun `invalid source type throws InvalidSiteConfiguration`() {
         val exception = assertThrows<InvalidSiteConfiguration> {
-            Factories.siteFromResourceConfigurationFile(
-                "/site-configuration-is-checked/invalid-source-type/kliche.toml"
+            Factories.siteFromResourcePath(
+                "/site-configuration-is-checked/invalid-source-type/"
             )
         }
         assert(exception.message?.contains("Invalid type")!!)
