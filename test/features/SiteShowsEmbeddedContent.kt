@@ -1,15 +1,10 @@
 package features
 
 import org.junit.jupiter.api.Test
-import tools.client.Client
-import tools.factories.Factories
+import tools.FeatureWithExampleSite
 import kotlin.test.assertEquals
 
-internal class SiteShowsEmbeddedContent {
-    private val site = Factories.siteFromResourcePath("/embedded-source-site")
-
-    private val client = Client.forSite(site)
-
+internal class SiteShowsEmbeddedContent: FeatureWithExampleSite("/embedded-source-site") {
     @Test
     internal fun `should show hello world message at root`() {
         client.withSiteRunning {

@@ -13,6 +13,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("io.undertow", "undertow-core", "2.1.3.Final")
     implementation("org.tomlj", "tomlj", "1.0.0")
+    implementation("com.atlassian.commonmark", "commonmark", "0.15.0")
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter", "junit-jupiter", "5.6.2")
     testImplementation("io.github.rybalkinsd", "kohttp", "0.12.0")
@@ -38,9 +39,9 @@ tasks {
         }
     }
     compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "11"
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "11"
     }
 }

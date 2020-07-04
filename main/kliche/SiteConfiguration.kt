@@ -49,6 +49,7 @@ class TomlStringConfiguration(
         return when (type) {
             "embedded" -> this.buildEmbeddedProviderFromConfiguration(it)
             "static" -> this.buildStaticProviderFromConfiguration(it)
+            "source-files" -> this.buildSourceFilesProviderFromconfiguration(it)
             else -> throw InvalidSiteConfiguration("Invalid type: $type")
         }
     }
@@ -73,6 +74,26 @@ class TomlStringConfiguration(
         // TODO: throw specific exception instead of !!
         val path = it.getString("path")!!
         return StaticContentProvider(basePath.resolve(path))
+    }
+
+    private fun buildSourceFilesProviderFromconfiguration(it: TomlTable): ContentProvider {
+        // TODO: throw specific exception instead of !!
+        val sourceFilesPath = it.getString("path")!!
+        val compilers = buildSourceFilesCompilersFromConfiguration(it)
+        return SourceFilesContentProvider(basePath.resolve(sourceFilesPath), compilers)
+    }
+
+    private fun buildSourceFilesCompilersFromConfiguration(it: TomlTable): List<SourceFileCompiler> {
+        val compilersTable = it.getTable("compilers")
+        // TODO: throw specific exception instead of !!
+        return compilersTable?.keySet()?.map {
+            // TODO: throw specific exception instead of !!
+            val compilerTable: TomlTable = compilersTable.getTable(it)!!
+            val type = compilerTable.getString("type")
+            // TODO: check type
+            assert(type == "markdown")
+            SourceFileMarkdownCompiler()
+        }!!
     }
 }
 

@@ -33,9 +33,9 @@ class Site(
         get() = "http://${host}:${port}"
 
     override fun handleRequest(exchange: HttpServerExchange) {
-        val response = this.providers
-            .firstOrNull { it.has(exchange.requestPath) }
-            ?.get(exchange.requestPath)
+        val response = this.providers.asSequence()
+            .map { it.get(exchange.requestPath) }
+            .firstOrNull()
         if (response != null) {
             exchange.statusCode = StatusCodes.OK
             exchange.responseSender.send(response)
