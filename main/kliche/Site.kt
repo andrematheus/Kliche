@@ -6,12 +6,8 @@ import io.undertow.server.HttpServerExchange
 import io.undertow.util.StatusCodes
 import java.nio.file.Path
 
-class Site(
-    sitePath: Path,
-    configuration: SiteConfiguration = TomlFileConfiguration(
-        sitePath
-    )
-) : HttpHandler {
+class Site(sitePath: Path) : HttpHandler {
+    private val configuration: SiteConfiguration = TomlFileConfiguration(sitePath)
 
     private val host: String = configuration.host
     private val port: Int = configuration.port

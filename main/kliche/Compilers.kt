@@ -1,6 +1,7 @@
 package kliche
 
 import de.neuland.jade4j.Jade4J
+import kliche.shell.readText
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import java.nio.file.Path
@@ -24,7 +25,7 @@ class SourceFileMarkdownCompiler : SourceFileCompiler {
     override fun compile(file: Path): String {
         val document =
             Parser.builder()
-                .build().parse(file.toFile().bufferedReader().readText())
+                .build().parse(file.readText())
         val renderer = HtmlRenderer.builder()
             .build()
         return renderer.render(document)

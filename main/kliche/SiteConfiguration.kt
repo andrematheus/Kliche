@@ -1,6 +1,8 @@
 package kliche
 
+import kliche.shell.readText
 import org.tomlj.Toml
+import org.tomlj.TomlInvalidTypeException
 import org.tomlj.TomlTable
 import java.nio.file.Path
 
@@ -11,13 +13,16 @@ interface SiteConfiguration {
 }
 
 class TomlFileConfiguration(
-    basePath: Path,
-    configurationFilePath: Path = basePath.resolve("kliche.toml"),
-    tomlStringConfiguration: TomlStringConfiguration = TomlStringConfiguration(
-        basePath,
-        configurationFilePath.toFile().bufferedReader().readText()
+    tomlStringConfiguration: TomlStringConfiguration
+) : SiteConfiguration by tomlStringConfiguration {
+
+    constructor(basePath: Path) : this(
+        TomlStringConfiguration(
+            basePath,
+            basePath.resolve("kliche.toml").readText()
+        )
     )
-) : SiteConfiguration by tomlStringConfiguration
+}
 
 class TomlStringConfiguration(
     private val basePath: Path,
@@ -26,27 +31,34 @@ class TomlStringConfiguration(
     SiteConfiguration {
 
     private val result = Toml.parse(configuration)
-    override val host = result.getString("host")!!
-    override val port = result.getLong("port")!!.toInt()
+    override val host = result.getString("host") ?: "localhost"
+    override val port = result.getLong("port")?.toInt() ?: 8080
 
     init {
-        // TODO throw specific exception when toml has errors
-        assert(!result.hasErrors())
+        if (result.hasErrors()) {
+            throw InvalidSiteConfiguration("Invalid TOML file: ${result.errors().map { it.toString() }.joinToString()}")
+        }
     }
 
     override val contentProviders: List<ContentProvider>
         get() {
-            // TODO: throw specific exception instead of !!
-            val sourcesTable: TomlTable = result.getTable("providers")!!
-            return sourcesTable.keySet().map {
-                // TODO: throw specific exception instead of !!
-                this.sourceFromConfiguration(sourcesTable.getTable(it)!!)
+            try {
+                val providersTable: TomlTable = result.getTable("providers")
+                    ?: throw InvalidSiteConfiguration("No providers found")
+                return providersTable.keySet().map {
+                    // TODO: throw specific exception instead of !!
+                    this.sourceFromConfiguration(
+                        providersTable.getTable(it)
+                            ?: error("Could not get key $it from sourcesTable $providersTable as table")
+                    )
+                }
+            } catch (e: TomlInvalidTypeException) {
+                throw InvalidSiteConfiguration("Toml error: ${e.message ?: ""}", e)
             }
         }
 
     private fun sourceFromConfiguration(it: TomlTable): ContentProvider {
-        val type = it.getString("type")
-        return when (type) {
+        return when (val type = it.getString("type")) {
             "embedded" -> this.buildEmbeddedProviderFromConfiguration(it)
             "static" -> this.buildStaticProviderFromConfiguration(it)
             "source-files" -> this.buildSourceFilesProviderFromconfiguration(it)
@@ -89,8 +101,7 @@ class TomlStringConfiguration(
         return compilersTable?.keySet()?.map {
             // TODO: throw specific exception instead of !!
             val compilerTable: TomlTable = compilersTable.getTable(it)!!
-            val type = compilerTable.getString("type")
-            when (type) {
+            when (val type = compilerTable.getString("type")) {
                 "markdown" -> SourceFileMarkdownCompiler()
                 "jade" -> SourceFileJadeCompiler()
                 else -> throw InvalidSiteConfiguration("Invalid compiler type: $type")
@@ -99,4 +110,4 @@ class TomlStringConfiguration(
     }
 }
 
-class InvalidSiteConfiguration(reason: String) : Throwable(reason)
+class InvalidSiteConfiguration(reason: String, cause: Throwable? = null) : Throwable(reason, cause)

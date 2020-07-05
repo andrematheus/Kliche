@@ -17,4 +17,12 @@ class SiteTransformsJadeFiles : FeatureWithExampleSite("/site-with-jade-files") 
             )
         }
     }
+
+    @Test
+    internal fun `should return 404 when no markdown file would have requested url`() {
+        client.withSiteRunning {
+            val response = get("/non-existing.html")
+            assertEquals(404, response.statusCode)
+        }
+    }
 }
