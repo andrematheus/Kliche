@@ -27,3 +27,7 @@ test:
     paths:
       - build
       - .gradle
+  artifacts:
+    paths:
+      - build/reports/tests
+    expire_in: 1 week
