@@ -10,10 +10,16 @@ import java.nio.file.StandardCopyOption
 class Factories {
     companion object {
         fun siteFromResourcePath(resourcePath: String): Site {
+            val (site, _) = this.siteAndTempPathFromResourcePath(resourcePath)
+            return site
+        }
+
+        fun siteAndTempPathFromResourcePath(resourcePath: String): Pair<Site, Path> {
             val tempPath = Files.createTempDirectory("kliche-test")
-            val resourceSitePath = Path.of(Site::class.java.getResource(resourcePath).toURI())
+            val resourceSitePath =
+                Path.of(Site::class.java.getResource(resourcePath).toURI())
             FileUtils.copyDirectory(resourceSitePath.toFile(), tempPath.toFile())
-            return Site(tempPath)
+            return Pair(Site(tempPath), tempPath)
         }
     }
 }

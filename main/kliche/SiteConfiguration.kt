@@ -31,7 +31,7 @@ class TomlStringConfiguration(
     SiteConfiguration {
 
     private val result = Toml.parse(configuration)
-    override val host = result.getString("host") ?: "localhost"
+    override val host = result.getString("host") ?: "0.0.0.0"
     override val port = result.getLong("port")?.toInt() ?: 8080
 
     init {

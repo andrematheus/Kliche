@@ -1,0 +1,12 @@
+title = "Embedded source example kliche site with docker"
+host = "0.0.0.0"
+port = 9300
+
+[providers]
+
+[providers.embedded-source]
+type = "embedded"
+
+[[providers.embedded-source.routes]]
+path = "/"
+content = "Hello, world!"

@@ -9,8 +9,8 @@ import java.nio.file.Path
 class Site(sitePath: Path) : HttpHandler {
     private val configuration: SiteConfiguration = TomlFileConfiguration(sitePath)
 
-    private val host: String = configuration.host
-    private val port: Int = configuration.port
+    val host: String = configuration.host
+    val port: Int = configuration.port
 
     private val providers = configuration.contentProviders
     private val undertow: Undertow = Undertow.builder()
@@ -18,6 +18,7 @@ class Site(sitePath: Path) : HttpHandler {
         .build()
 
     fun start() {
+        print("Starting kliche on ${host} and ${port}")
         undertow.start()
     }
 

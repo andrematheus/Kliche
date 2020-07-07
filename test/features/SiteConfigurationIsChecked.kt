@@ -23,13 +23,13 @@ class SiteConfigurationIsChecked {
     }
 
     @Test
-    internal fun `if no host is found in file then localhost is used`() {
+    internal fun `if no host is found in file then 0_0_0_0 is used`() {
         val resourceSitePath = Path.of(
             Site::class.java.getResource("/site-configuration-is-checked/no-host").toURI()
         )
         val configuration =
             TomlStringConfiguration(resourceSitePath, resourceSitePath.resolve("kliche.toml").readText())
-        assertEquals("localhost", configuration.host)
+        assertEquals("0.0.0.0", configuration.host)
     }
 
     @Test

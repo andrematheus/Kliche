@@ -2,12 +2,29 @@ package tools.client
 
 import io.github.rybalkinsd.kohttp.ext.httpGet
 import kliche.Site
+import kliche.main
+import org.testcontainers.containers.GenericContainer
 import java.io.Closeable
+import java.io.IOException
+import java.net.Socket
+import kotlin.concurrent.thread
 
-class Client(private val site: Site) {
-    class ClientOps(private val site: Site) {
-        fun get(path: String): Response {
+class Client(private val site: Site? = null) {
+    interface ClientOps {
+        fun get(path: String): Response
+    }
+
+    class SiteClientOps(private val site: Site) : ClientOps {
+        override fun get(path: String): Response {
             val response = "${site.baseUri}${path}".httpGet()
+            return Response(response.code(), response.body()?.string() ?: "")
+        }
+    }
+
+    class ContainerClientOps(private val container: GenericContainer<*>) : ClientOps {
+        override fun get(path: String): Response {
+            val response =
+                "http://${container.getHost()}:${container.getFirstMappedPort()}".httpGet()
             return Response(response.code(), response.body()?.string() ?: "")
         }
     }
@@ -23,12 +40,35 @@ class Client(private val site: Site) {
     }
 
     fun withSiteRunning(block: ClientOps.() -> Unit) {
-        RunningSite(site).use {
-            ClientOps(site).block()
+        RunningSite(site!!).use {
+            SiteClientOps(site).block()
+        }
+    }
+
+    fun withMainRunning(path: String, block: ClientOps.() -> Unit) {
+        thread(start = true, isDaemon = true) { main(arrayOf(path)) }
+        var started = false
+        while (!started) {
+            try {
+                Socket(site!!.host, site.port).use { started = true }
+            } catch (e: IOException) {
+                Thread.sleep(500)
+            }
+        }
+        SiteClientOps(site!!).block()
+    }
+
+    fun withContainerRunning(
+        container: GenericContainer<*>,
+        block: ClientOps.() -> Unit
+    ) {
+        container.also { it.start() }.use {
+            ContainerClientOps(container).block()
         }
     }
 
     companion object {
         fun forSite(site: Site) = Client(site)
+        fun forContainer() = Client()
     }
 }
