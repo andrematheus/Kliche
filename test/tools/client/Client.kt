@@ -70,7 +70,9 @@ class Client(private val site: Site? = null) {
         block: ClientOps.() -> Unit
     ) {
         container.also { it.start() }.use {
+            println("Running container block")
             ContainerClientOps(container).block()
+            println("done")
         }
     }
 

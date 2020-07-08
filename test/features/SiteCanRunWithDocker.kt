@@ -7,11 +7,14 @@ import org.testcontainers.containers.GenericContainer
 import org.testcontainers.images.builder.ImageFromDockerfile
 import tools.client.Client
 import java.nio.file.Path
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 @Tag("slow")
 class SiteCanRunWithDocker {
+
     init {
-        print("Building kliche image...")
+        println("Building kliche image...")
         ImageFromDockerfile("kliche", false)
             .withDockerfile(Path.of("./Dockerfile"))
             .get()
@@ -20,6 +23,7 @@ class SiteCanRunWithDocker {
 
     @Test
     internal fun `run site with kliche dockerfile`() {
+        val randomPort = Random.nextInt(5000..9000)
         val container: GenericContainer<*> = GenericContainer<Nothing>(
             ImageFromDockerfile("site-with-docker")
                 .withDockerfile(
@@ -28,7 +32,10 @@ class SiteCanRunWithDocker {
                             .toURI()
                     )
                 )
-        ).withExposedPorts(9300)
+        ).apply {
+            withEnv("PORT", randomPort.toString())
+            withExposedPorts(randomPort)
+        }
 
         Client.forContainer().withContainerRunning(container) {
             val response = get("/")
