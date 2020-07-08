@@ -1,11 +1,9 @@
-build:
+.gradle:
   image: gradle:6.5.1-jdk11
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false -Xmx256m"
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle
-  stage: build
-  script: gradle -i --build-cache assemble
   cache:
     key: "$CI_COMMIT_REF_NAME"
     policy: push
@@ -13,25 +11,36 @@ build:
       - build
       - .gradle
 
-test:
-  image: gradle:6.5.1-jdk11
-  variables:
-    GRADLE_OPTS: "-Dorg.gradle.daemon=false -Xmx256m"
-  before_script:
-    - export GRADLE_USER_HOME=`pwd`/.gradle
-  stage: test
-  script: gradle -i check
-  cache:
-    key: "$CI_COMMIT_REF_NAME"
-    policy: pull
-    paths:
-      - build
-      - .gradle
+.test:
   artifacts:
     name: "Tests report for $CI_JOB_NAME"
     when: always
     paths:
       - build/reports/tests
     reports:
-      junit:  build/test-results/tests/TEST-*.xml
+      junit:  build/test-results/test/TEST-*.xml
     expire_in: 1 week
+
+build:
+  stage: build
+  script: gradle -i --build-cache assemble
+  extends: .gradle
+
+fastTests:
+  stage: test
+  script: gradle -i test
+  extends:
+    - .gradle
+    - .test
+
+slowTests:
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_DRIVER: overlay2
+  stage: test
+  script: gradle -i slowTest
+  extends:
+    - .gradle
+    - .test
