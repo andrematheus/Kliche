@@ -46,14 +46,21 @@ class Client(private val site: Site? = null) {
     }
 
     fun withMainRunning(path: String, block: ClientOps.() -> Unit) {
-        thread(start = true, isDaemon = true) { main(arrayOf(path)) }
+        thread(start = true, isDaemon = true) {
+            main(arrayOf(path, site?.port.toString()))
+        }
         var started = false
-        while (!started) {
+        var times = 50
+        while (!started && times > 0) {
             try {
                 Socket(site!!.host, site.port).use { started = true }
             } catch (e: IOException) {
+                times -= 1
                 Thread.sleep(500)
             }
+        }
+        if (times == 0) {
+            error("Site did not come up.")
         }
         SiteClientOps(site!!).block()
     }

@@ -5,7 +5,7 @@ build:
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle
   stage: build
-  script: gradle --build-cache assemble
+  script: gradle -i --build-cache assemble
   cache:
     key: "$CI_COMMIT_REF_NAME"
     policy: push
@@ -20,7 +20,7 @@ test:
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle
   stage: test
-  script: gradle check
+  script: gradle -i check
   cache:
     key: "$CI_COMMIT_REF_NAME"
     policy: pull

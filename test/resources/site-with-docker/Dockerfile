@@ -1,4 +1,5 @@
 FROM kliche
 
-COPY . /srv/site
+ENV PORT 6439
 
+COPY . /srv/site

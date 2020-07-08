@@ -41,10 +41,25 @@ sourceSets {
 
 tasks {
     test {
-        useJUnitPlatform()
+        useJUnitPlatform {
+            excludeTags("slow")
+        }
         testLogging {
             events("passed", "skipped", "failed")
         }
+    }
+
+    register("slowTest", Test::class.java) {
+        useJUnitPlatform {
+            includeTags("slow")
+        }
+    }
+
+    "slowTest" {
+        shouldRunAfter("test")
+    }
+    "check" {
+        dependsOn("slowTest")
     }
     compileKotlin {
         kotlinOptions.jvmTarget = "11"

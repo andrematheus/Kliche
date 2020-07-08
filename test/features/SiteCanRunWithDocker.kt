@@ -1,13 +1,14 @@
 package features
 
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.images.builder.ImageFromDockerfile
 import tools.client.Client
 import java.nio.file.Path
 
+@Tag("slow")
 class SiteCanRunWithDocker {
     init {
         print("Building kliche image...")

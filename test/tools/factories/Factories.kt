@@ -6,6 +6,8 @@ import java.nio.file.CopyOption
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 class Factories {
     companion object {
@@ -19,7 +21,7 @@ class Factories {
             val resourceSitePath =
                 Path.of(Site::class.java.getResource(resourcePath).toURI())
             FileUtils.copyDirectory(resourceSitePath.toFile(), tempPath.toFile())
-            return Pair(Site(tempPath), tempPath)
+            return Pair(Site(tempPath, Random.nextInt(5000..9000)), tempPath)
         }
     }
 }

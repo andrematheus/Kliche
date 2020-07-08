@@ -6,11 +6,11 @@ import io.undertow.server.HttpServerExchange
 import io.undertow.util.StatusCodes
 import java.nio.file.Path
 
-class Site(sitePath: Path) : HttpHandler {
+class Site(sitePath: Path, overridePort: Int? = null) : HttpHandler {
     private val configuration: SiteConfiguration = TomlFileConfiguration(sitePath)
 
     val host: String = configuration.host
-    val port: Int = configuration.port
+    val port: Int = overridePort ?: configuration.port
 
     private val providers = configuration.contentProviders
     private val undertow: Undertow = Undertow.builder()
@@ -18,7 +18,7 @@ class Site(sitePath: Path) : HttpHandler {
         .build()
 
     fun start() {
-        print("Starting kliche on ${host} and ${port}")
+        println("Starting kliche on ${host} and ${port}")
         undertow.start()
     }
 
