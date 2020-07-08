@@ -30,6 +30,8 @@ test:
   artifacts:
     name: "Tests report for $CI_JOB_NAME"
     when: always
+    paths:
+      - build/reports/tests
     reports:
-      junit:  build/reports/test/TEST-*.xml
+      junit:  build/test-results/tests/TEST-*.xml
     expire_in: 1 week
