@@ -11,6 +11,17 @@
       - .gradle
 
 .test:
+  image: gradle:6.5.1-jdk11
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false -Xmx256m"
+  before_script:
+    - rm -fr /build/reports/tests
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    paths:
+      - build
+      - .gradle
   artifacts:
     name: "Tests report for $CI_JOB_NAME"
     when: on_failure
@@ -22,14 +33,13 @@
 
 build:
   stage: build
-  script: gradle -i --build-cache assemble
+  script: ./gradlew -i --build-cache clean assemble
   extends: .gradle
 
 fastTests:
   stage: test
-  script: gradle -i test
+  script: ./gradlew -i test
   extends:
-    - .gradle
     - .test
 
 slowTests:
@@ -39,7 +49,37 @@ slowTests:
     DOCKER_HOST: "tcp://docker:2375"
     DOCKER_DRIVER: overlay2
   stage: test
-  script: gradle -i slowTest
+  script: ./gradlew -i slowTest
   extends:
-    - .gradle
     - .test
+
+buildAndPushDockerImageToGitlabRegistry:
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  stage: deploy
+  script:
+    - cat gradle.properties | grep "^version = " | sed 's/version = //' > VERSION
+    - docker build --pull -t "$CI_REGISTRY_IMAGE:$(cat VERSION)" .
+    - docker tag "$CI_REGISTRY_IMAGE:$(cat VERSION)" "$CI_REGISTRY_IMAGE:latest"
+    - docker push "$CI_REGISTRY_IMAGE:$(cat VERSION)"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+
+buildAndPushDockerImageToDockerHub:
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$DOCKERHUB_REGISTRY_USER" -p "$DOCKERHUB_REGISTRY_PASSWORD" $DOCKERHUB_REGISTRY
+  stage: deploy
+  script:
+    - cat gradle.properties | grep "^version = " | sed 's/version = //' > VERSION
+    - docker build --pull -t "$DOCKERHUB_REGISTRY_IMAGE:$(cat VERSION)" .
+    - docker tag "$DOCKERHUB_REGISTRY_IMAGE:$(cat VERSION)" "$DOCKERHUB_REGISTRY_IMAGE:latest"
+    - docker push "$DOCKERHUB_REGISTRY_IMAGE:$(cat VERSION)"
+    - docker push "$DOCKERHUB_REGISTRY_IMAGE:latest"
+  only:
+    - master
+    - tags

@@ -4,7 +4,6 @@ plugins {
 }
 
 group = "dev.ligpo"
-version = "1.0-SNAPSHOT"
 
 application {
     mainClass.set("kliche.KlicheKt")
