@@ -33,12 +33,12 @@
 
 build:
   stage: build
-  script: gradle -i --build-cache clean assemble
+  script: ./gradlew -i --build-cache clean assemble
   extends: .gradle
 
 fastTests:
   stage: test
-  script: gradle -i test
+  script: ./gradlew -i test
   extends:
     - .test
 
@@ -49,7 +49,7 @@ slowTests:
     DOCKER_HOST: "tcp://docker:2375"
     DOCKER_DRIVER: overlay2
   stage: test
-  script: gradle -i slowTest
+  script: ./gradlew -i slowTest
   extends:
     - .test
 
