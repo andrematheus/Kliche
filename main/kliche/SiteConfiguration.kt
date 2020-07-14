@@ -104,6 +104,7 @@ class TomlStringConfiguration(
             when (val type = compilerTable.getString("type")) {
                 "markdown" -> SourceFileMarkdownCompiler()
                 "jade" -> SourceFileJadeCompiler()
+                "less" -> SourceFileLessCompiler()
                 else -> throw InvalidSiteConfiguration("Invalid compiler type: $type")
             }
         }!!

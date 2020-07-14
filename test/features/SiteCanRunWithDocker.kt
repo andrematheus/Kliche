@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.images.builder.ImageFromDockerfile
 import tools.client.Client
+import tools.factories.randomAvailablePort
 import java.nio.file.Path
 import kotlin.random.Random
 import kotlin.random.nextInt
@@ -23,7 +24,7 @@ class SiteCanRunWithDocker {
 
     @Test
     internal fun `run site with kliche dockerfile`() {
-        val randomPort = Random.nextInt(5000..9000)
+        val randomPort = randomAvailablePort()
         val container: GenericContainer<*> = GenericContainer<Nothing>(
             ImageFromDockerfile("site-with-docker")
                 .withDockerfile(

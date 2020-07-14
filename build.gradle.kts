@@ -19,6 +19,7 @@ dependencies {
     implementation("org.tomlj", "tomlj", "1.0.0")
     implementation("com.atlassian.commonmark", "commonmark", "0.15.0")
     implementation("de.neuland-bfi", "jade4j", "1.3.2")
+    implementation("org.lesscss", "lesscss", "1.7.0.1.1")
 
     testImplementation("org.junit.jupiter", "junit-jupiter", "5.6.2")
     testImplementation("io.github.rybalkinsd", "kohttp", "0.12.0")

@@ -4,6 +4,7 @@ import de.neuland.jade4j.Jade4J
 import kliche.shell.readText
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
+import org.lesscss.LessCompiler
 import java.nio.file.Path
 
 interface SourceFileCompiler {
@@ -48,5 +49,20 @@ class SourceFileJadeCompiler : SourceFileCompiler {
             file.toFile().absolutePath,
             mapOf()
         )
+    }
+}
+
+class SourceFileLessCompiler : SourceFileCompiler {
+    override fun accepts(file: Path): Boolean {
+        return file.toFile().extension == "less"
+    }
+
+    override fun compile(file: Path): String {
+        return LessCompiler().compile(file.toFile())
+    }
+
+    override fun generatedFileName(file: Path): Path {
+        return Path.of(file.toFile().parent)
+            .resolve(file.toFile().nameWithoutExtension + ".css")
     }
 }
