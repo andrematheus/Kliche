@@ -6,7 +6,6 @@ import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import java.nio.file.Path
 
-// ha ha
 interface SourceFileCompiler {
     fun accepts(file: Path): Boolean
     fun compile(file: Path): String
