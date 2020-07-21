@@ -36,7 +36,10 @@ class TomlStringConfiguration(
 
     init {
         if (result.hasErrors()) {
-            throw InvalidSiteConfiguration("Invalid TOML file: ${result.errors().map { it.toString() }.joinToString()}")
+            throw InvalidSiteConfiguration(
+                "Invalid TOML file: ${result.errors().map { it.toString() }
+                    .joinToString()}"
+            )
         }
     }
 
@@ -58,11 +61,19 @@ class TomlStringConfiguration(
         }
 
     private fun sourceFromConfiguration(it: TomlTable): ContentProvider {
-        return when (val type = it.getString("type")) {
+        val contentProvider = when (val type = it.getString("type")) {
             "embedded" -> this.buildEmbeddedProviderFromConfiguration(it)
             "static" -> this.buildStaticProviderFromConfiguration(it)
             "source-files" -> this.buildSourceFilesProviderFromconfiguration(it)
             else -> throw InvalidSiteConfiguration("Invalid type: $type")
+        }
+        return if (it.contains("layout")) {
+            LayoutProvider(
+                basePath.resolve(it.getString("layout")!!),
+                contentProvider
+            )
+        } else {
+            contentProvider
         }
     }
 
@@ -111,4 +122,5 @@ class TomlStringConfiguration(
     }
 }
 
-class InvalidSiteConfiguration(reason: String, cause: Throwable? = null) : Throwable(reason, cause)
+class InvalidSiteConfiguration(reason: String, cause: Throwable? = null) :
+    Throwable(reason, cause)

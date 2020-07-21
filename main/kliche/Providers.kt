@@ -1,10 +1,29 @@
 package kliche
 
+import com.github.mustachejava.DefaultMustacheFactory
+import java.io.StringWriter
 import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 
 interface ContentProvider {
     fun get(requestPath: String): String?
+}
+
+class LayoutProvider(
+    layoutFilePath: Path,
+    private val contentProvider: ContentProvider
+) : ContentProvider {
+
+    private val mustache = DefaultMustacheFactory().compile(
+        layoutFilePath.toFile().bufferedReader(), layoutFilePath.fileName.toString()
+    )
+
+    override fun get(requestPath: String) =
+        contentProvider.get(requestPath)?.let {
+            StringWriter().also { sb ->
+                mustache.execute(sb, mapOf("content" to it))
+            }.toString()
+        }
 }
 
 class EmbeddedContentProvider(private val routes: Map<String, String>) : ContentProvider {
