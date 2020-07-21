@@ -2,6 +2,7 @@ package kliche
 
 import com.github.mustachejava.DefaultMustacheFactory
 import com.github.mustachejava.Mustache
+import java.io.File
 import java.io.StringReader
 import java.io.StringWriter
 import java.nio.file.*
@@ -32,12 +33,18 @@ class LayoutProvider(
         )
     }
 
-    override fun get(requestPath: String) =
-        contentProvider.get(requestPath)?.let {
-            StringWriter().also { sb ->
-                mustache.execute(sb, mapOf("content" to it))
-            }.toString()
+    override fun get(requestPath: String): String? {
+        val content = contentProvider.get(requestPath)
+        return if (requestPath.endsWith(".html")) {
+            content?.let {
+                StringWriter().also { sb ->
+                    mustache.execute(sb, mapOf("content" to it))
+                }.toString()
+            }
+        } else {
+            content
         }
+    }
 }
 
 class EmbeddedContentProvider(private val routes: Map<String, String>) : ContentProvider {
@@ -53,9 +60,14 @@ class StaticContentProvider(private val basePath: Path) : ContentProvider {
     override fun get(requestPath: String) =
         when {
             this.has(requestPath) ->
-                basePath.resolve(requestPath.removePrefix("/")).toFile().readText()
+                basePath.resolve(requestPath.removePrefix("/")).toFile().readTextIfFile()
             else -> null
         }
+}
+
+private fun File.readTextIfFile() = when {
+    this.isFile -> this.readText()
+    else -> null
 }
 
 class SourceFilesContentProvider(

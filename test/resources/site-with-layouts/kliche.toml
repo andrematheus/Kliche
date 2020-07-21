@@ -7,7 +7,7 @@ type = "embedded"
 layout = "layout.txt"
 
 [[providers.embedded-source.routes]]
-path = "/"
+path = "/index.html"
 content = "Hello, world!"
 
 [providers.other-embedded-source]
@@ -16,5 +16,10 @@ layout = "layout2.jade"
 compilers = ["jade"]
 
 [[providers.other-embedded-source.routes]]
-path = "/with-jade"
+path = "/with-jade.html"
 content = "Hello, world!"
+
+[providers.static]
+type = "static"
+path = "static"
+layout = "layout.txt"

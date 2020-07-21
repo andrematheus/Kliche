@@ -21,6 +21,9 @@ dependencies {
     implementation("de.neuland-bfi", "jade4j", "1.3.2")
     implementation("org.lesscss", "lesscss", "1.7.0.1.1")
     implementation("com.github.spullara.mustache.java:compiler:0.9.6")
+    implementation("org.slf4j:slf4j-api:1.7.30")
+    implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation("ch.qos.logback:logback-core:1.2.3")
 
     testImplementation("org.junit.jupiter", "junit-jupiter", "5.6.2")
     testImplementation("io.github.rybalkinsd", "kohttp", "0.12.0")
