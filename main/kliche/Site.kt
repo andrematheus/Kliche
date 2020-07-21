@@ -32,7 +32,7 @@ class Site(sitePath: Path, overridePort: Int? = null) : HttpHandler {
     override fun handleRequest(exchange: HttpServerExchange) {
         val response = this.providers.asSequence()
             .map { it.get(exchange.requestPath) }
-            .firstOrNull()
+            .firstOrNull { it != null }
         if (response != null) {
             exchange.statusCode = StatusCodes.OK
             exchange.responseSender.send(response)

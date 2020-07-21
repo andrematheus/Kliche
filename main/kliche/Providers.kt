@@ -1,6 +1,8 @@
 package kliche
 
 import com.github.mustachejava.DefaultMustacheFactory
+import com.github.mustachejava.Mustache
+import java.io.StringReader
 import java.io.StringWriter
 import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
@@ -11,12 +13,24 @@ interface ContentProvider {
 
 class LayoutProvider(
     layoutFilePath: Path,
-    private val contentProvider: ContentProvider
+    private val contentProvider: ContentProvider,
+    compilers: List<SourceFileCompiler>?
 ) : ContentProvider {
 
-    private val mustache = DefaultMustacheFactory().compile(
-        layoutFilePath.toFile().bufferedReader(), layoutFilePath.fileName.toString()
-    )
+    private val mustache: Mustache
+
+    init {
+        val firstCompiler =
+            compilers?.asSequence()?.firstOrNull { it.accepts(layoutFilePath) }
+        val reader = if (firstCompiler != null) {
+            StringReader(firstCompiler.compile(layoutFilePath))
+        } else {
+            layoutFilePath.toFile().bufferedReader()
+        }
+        mustache = DefaultMustacheFactory().compile(
+            reader, layoutFilePath.fileName.toString()
+        )
+    }
 
     override fun get(requestPath: String) =
         contentProvider.get(requestPath)?.let {

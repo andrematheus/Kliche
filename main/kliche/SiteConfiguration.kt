@@ -50,10 +50,7 @@ class TomlStringConfiguration(
                     ?: throw InvalidSiteConfiguration("No providers found")
                 return providersTable.keySet().map {
                     // TODO: throw specific exception instead of !!
-                    this.sourceFromConfiguration(
-                        providersTable.getTable(it)
-                            ?: error("Could not get key $it from sourcesTable $providersTable as table")
-                    )
+                    this.sourceFromConfiguration(providersTable.getTable(it)!!)
                 }
             } catch (e: TomlInvalidTypeException) {
                 throw InvalidSiteConfiguration("Toml error: ${e.message ?: ""}", e)
@@ -68,9 +65,11 @@ class TomlStringConfiguration(
             else -> throw InvalidSiteConfiguration("Invalid type: $type")
         }
         return if (it.contains("layout")) {
+            val compilers = buildSourceFilesCompilersFromConfiguration(it)
             LayoutProvider(
                 basePath.resolve(it.getString("layout")!!),
-                contentProvider
+                contentProvider,
+                compilers
             )
         } else {
             contentProvider
@@ -102,11 +101,11 @@ class TomlStringConfiguration(
     private fun buildSourceFilesProviderFromconfiguration(it: TomlTable): ContentProvider {
         // TODO: throw specific exception instead of !!
         val sourceFilesPath = it.getString("path")!!
-        val compilers = buildSourceFilesCompilersFromConfiguration(it)
+        val compilers = buildSourceFilesCompilersFromConfiguration(it)!!
         return SourceFilesContentProvider(basePath.resolve(sourceFilesPath), compilers)
     }
 
-    private fun buildSourceFilesCompilersFromConfiguration(it: TomlTable): List<SourceFileCompiler> {
+    private fun buildSourceFilesCompilersFromConfiguration(it: TomlTable): List<SourceFileCompiler>? {
         val compilersTable = it.getTable("compilers")
         // TODO: throw specific exception instead of !!
         return compilersTable?.keySet()?.map {
@@ -118,7 +117,7 @@ class TomlStringConfiguration(
                 "less" -> SourceFileLessCompiler()
                 else -> throw InvalidSiteConfiguration("Invalid compiler type: $type")
             }
-        }!!
+        }
     }
 }
 

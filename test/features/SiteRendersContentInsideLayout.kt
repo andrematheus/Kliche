@@ -13,4 +13,13 @@ class SiteRendersContentInsideLayout: FeatureWithExampleSite("/site-with-layouts
             assertEquals("<Layout>Hello, world!</Layout>", response.text)
         }
     }
+
+    @Test
+    internal fun `should compile layout while rendering content inside of it`() {
+        client.withSiteRunning {
+            val response = get("/with-jade")
+            assertEquals(200, response.statusCode)
+            assertEquals("<h1>Hello, world!</h1>", response.text)
+        }
+    }
 }
