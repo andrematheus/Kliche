@@ -7,6 +7,4 @@ port = 9300
 [providers.source-files]
 type = "source-files"
 path = "markdown-files"
-
-[providers.source-files.compilers.markdown]
-type = "markdown"
+compilers = ["markdown"]

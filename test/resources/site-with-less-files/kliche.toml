@@ -7,6 +7,4 @@ port = 9300
 [providers.source-files]
 type = "source-files"
 path = "less-files"
-
-[providers.source-files.compilers.less]
-type = "less"
+compilers = ["less"]

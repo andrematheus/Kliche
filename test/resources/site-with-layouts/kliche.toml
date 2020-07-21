@@ -13,10 +13,8 @@ content = "Hello, world!"
 [providers.other-embedded-source]
 type = "embedded"
 layout = "layout2.jade"
+compilers = ["jade"]
 
 [[providers.other-embedded-source.routes]]
 path = "/with-jade"
 content = "Hello, world!"
-
-[providers.other-embedded-source.compilers.jade]
-type = "jade"

@@ -106,16 +106,14 @@ class TomlStringConfiguration(
     }
 
     private fun buildSourceFilesCompilersFromConfiguration(it: TomlTable): List<SourceFileCompiler>? {
-        val compilersTable = it.getTable("compilers")
+        val compilersList = it.getArray("compilers")
         // TODO: throw specific exception instead of !!
-        return compilersTable?.keySet()?.map {
-            // TODO: throw specific exception instead of !!
-            val compilerTable: TomlTable = compilersTable.getTable(it)!!
-            when (val type = compilerTable.getString("type")) {
+        return compilersList?.toList()?.map {
+            when (it) {
                 "markdown" -> SourceFileMarkdownCompiler()
                 "jade" -> SourceFileJadeCompiler()
                 "less" -> SourceFileLessCompiler()
-                else -> throw InvalidSiteConfiguration("Invalid compiler type: $type")
+                else -> throw InvalidSiteConfiguration("Invalid compiler type: $it")
             }
         }
     }

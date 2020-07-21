@@ -7,6 +7,4 @@ port = 9300
 [providers.source-files]
 type = "source-files"
 path = "jade-files"
-
-[providers.source-files.compilers.jade]
-type = "jade"
+compilers = ["jade"]

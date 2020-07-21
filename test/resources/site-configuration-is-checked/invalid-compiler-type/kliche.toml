@@ -7,6 +7,4 @@ port = 9300
 [providers.source-files]
 type = "source-files"
 path = "whatever"
-
-[providers.source-files.compilers.invalid]
-type = "<<INVALID>>"
+compilers = ["<<INVALID>>"]
