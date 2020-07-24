@@ -36,6 +36,22 @@ class SiteTransformsMarkdownFiles : FeatureWithExampleSite("/site-with-markdown-
                 response.text
             )
         }
+    }
+
+    @Test
+    internal fun `should compile markdown index when url ends in slash`() {
+        client.withSiteRunning {
+            val response = get("/subdir/")
+            assertEquals(200, response.statusCode)
+            assertEquals(
+                //language=HTML
+                """
+                <h1>Hello from Markdown</h1>
+                
+                """.trimIndent(),
+                response.text
+            )
+        }
 
     }
 

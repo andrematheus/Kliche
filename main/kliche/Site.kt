@@ -31,20 +31,28 @@ class Site(sitePath: Path, overridePort: Int? = null) : HttpHandler {
     val baseUri: String
         get() = "http://${host}:${port}"
 
-    override fun handleRequest(exchange: HttpServerExchange) {
-        try {
-            val response = this.providers.asSequence()
-                .map { it.get(exchange.requestPath) }
-                .firstOrNull { it != null }
-            if (response != null) {
-                exchange.statusCode = StatusCodes.OK
-                exchange.responseSender.send(ByteBuffer.wrap(response.bytes()))
-            } else {
-                exchange.statusCode = StatusCodes.NOT_FOUND
-                exchange.responseSender.send(StatusCodes.NOT_FOUND_STRING)
+    override fun handleRequest(exchange: HttpServerExchange) = try {
+        this.logger().info("${this.providers}")
+        val response = this.providers.asSequence()
+            .map {
+                val compiler = it
+                it.get(exchange.requestPath).also {
+                    if (it != null) {
+                        this.logger().info("Request may be served by ${compiler.javaClass.name}")
+                    } else {
+                        this.logger().info("Request WON'T be served by ${compiler.javaClass.name}")
+                    }
+                }
             }
-        } catch (e: Exception) {
-            this.logger().error(e.message, e)
+            .firstOrNull { it != null }
+        if (response != null) {
+            exchange.statusCode = StatusCodes.OK
+            exchange.responseSender.send(ByteBuffer.wrap(response.bytes()))
+        } else {
+            exchange.statusCode = StatusCodes.NOT_FOUND
+            exchange.responseSender.send(StatusCodes.NOT_FOUND_STRING)
         }
+    } catch (e: Exception) {
+        this.logger().error(e.message, e)
     }
 }

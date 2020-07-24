@@ -2,6 +2,7 @@ package kliche
 
 import kliche.shell.readText
 import org.tomlj.Toml
+import org.tomlj.TomlArray
 import org.tomlj.TomlInvalidTypeException
 import org.tomlj.TomlTable
 import java.nio.file.Path
@@ -46,11 +47,11 @@ class TomlStringConfiguration(
     override val contentProviders: List<ContentProvider>
         get() {
             try {
-                val providersTable: TomlTable = result.getTable("providers")
+                val providersArray: TomlArray = result.getArray("providers")
                     ?: throw InvalidSiteConfiguration("No providers found")
-                return providersTable.keySet().map {
+                return providersArray.toList().map {
                     // TODO: throw specific exception instead of !!
-                    this.sourceFromConfiguration(providersTable.getTable(it)!!)
+                    this.sourceFromConfiguration(it as TomlTable)
                 }
             } catch (e: TomlInvalidTypeException) {
                 throw InvalidSiteConfiguration("Toml error: ${e.message ?: ""}", e)

@@ -31,4 +31,13 @@ class SiteRendersContentInsideLayout: FeatureWithExampleSite("/site-with-layouts
             assertEquals("/* css file */", response.text)
         }
     }
+
+    @Test
+    internal fun `should put layout on index`() {
+        client.withSiteRunning {
+            val response = get("/with-index")
+            assertEquals(200, response.statusCode)
+            assertEquals("<h1><p>Hello world</p></h1>", response.text)
+        }
+    }
 }

@@ -2,24 +2,30 @@ title = "Embedded source example kliche site with layout"
 host = "localhost"
 port = 9300
 
-[providers.embedded-source]
+[[providers]]
 type = "embedded"
 layout = "layout.txt"
 
-[[providers.embedded-source.routes]]
+[[providers.routes]]
 path = "/index.html"
 content = "Hello, world!"
 
-[providers.other-embedded-source]
+[[providers]]
 type = "embedded"
 layout = "layout2.jade"
 compilers = ["jade"]
 
-[[providers.other-embedded-source.routes]]
+[[providers.routes]]
 path = "/with-jade.html"
 content = "Hello, world!"
 
-[providers.static]
+[[providers]]
 type = "static"
 path = "static"
 layout = "layout.txt"
+
+[[providers]]
+type = "source-files"
+path = "src"
+layout = "layout2.jade"
+compilers = ["jade"]

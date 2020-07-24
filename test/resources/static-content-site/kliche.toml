@@ -2,8 +2,6 @@ title = "Static content example kliche site"
 host = "localhost"
 port = 9300
 
-[providers]
-
-[providers.static-content]
+[[providers]]
 type = "static"
 path = "static-files"

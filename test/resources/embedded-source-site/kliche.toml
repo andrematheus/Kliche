@@ -2,11 +2,9 @@ title = "Embedded source example kliche site"
 host = "localhost"
 port = 9300
 
-[providers]
-
-[providers.embedded-source]
+[[providers]]
 type = "embedded"
 
-[[providers.embedded-source.routes]]
+[[providers.routes]]
 path = "/"
 content = "Hello, world!"

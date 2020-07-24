@@ -51,7 +51,8 @@ class LayoutProvider(
 
     override fun get(requestPath: String): BytesConvertible? {
         val content = contentProvider.get(requestPath)
-        return if (requestPath.endsWith(".html") && content is BytesConvertible.OfString) {
+        return if ((requestPath.endsWith(".html") || requestPath.lastIndexOf(".") == -1)
+            && content is BytesConvertible.OfString) {
             content.let {
                 StringWriter().also { sb ->
                     mustache.execute(sb, mapOf("content" to it.string))
@@ -91,7 +92,7 @@ private fun File.readFileToBytesConvertible() = when {
         }
     }
     this.isDirectory -> {
-        val indexes = this.list { dir, name ->
+        val indexes = this.list { _, name ->
             isIndexfile(this.resolve(name).toPath())
         }
         if (indexes?.isNotEmpty() == true) {
@@ -146,12 +147,8 @@ class SourceFilesContentProvider(
     }
 
     override fun get(requestPath: String): BytesConvertible? {
-        return routes[requestPath.removePrefix("/")]?.let {
-            if (probablyIsText(it.filePath)) {
-                it.compiler.compile(it.filePath).bytesConvertible()
-            } else {
-                it.filePath.toFile().readFileToBytesConvertible()
-            }
+        return routes[requestPath.removePrefix("/").removeSuffix("/")]?.let {
+            it.compiler.compile(it.filePath).bytesConvertible()
         }
     }
 }
