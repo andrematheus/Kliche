@@ -90,8 +90,21 @@ private fun File.readFileToBytesConvertible() = when {
             this.readBytes().bytesConvertible()
         }
     }
+    this.isDirectory -> {
+        val indexes = this.list { dir, name ->
+            isIndexfile(this.resolve(name).toPath())
+        }
+        if (indexes?.isNotEmpty() == true) {
+            this.resolve(indexes[0]).readText().bytesConvertible()
+        } else {
+            null
+        }
+    }
     else -> null
 }
+
+private fun isIndexfile(path: Path) =
+    path.fileName.toString().startsWith("index.") && probablyIsText(path)
 
 val tika = lazy { Tika() }
 
@@ -118,6 +131,11 @@ class SourceFilesContentProvider(
                     val generatedFilename =
                         sourceFilesPath.relativize(it.generatedFileName(file)).toString()
                     routes[generatedFilename] = FileWithCompiler(file, it)
+                    if (isIndexfile(file)) {
+                        val parentFilename =
+                            sourceFilesPath.relativize(file.parent).toString()
+                        routes[parentFilename] = FileWithCompiler(file, it)
+                    }
                 }
             return FileVisitResult.CONTINUE
         }

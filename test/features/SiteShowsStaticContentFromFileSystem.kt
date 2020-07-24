@@ -27,6 +27,15 @@ class SiteShowsStaticContentFromFileSystem: FeatureWithExampleSite("/static-cont
     }
 
     @Test
+    internal fun `should return index file for folders`() {
+        client.withSiteRunning {
+            val response = get("/dir")
+            assertEquals(200, response.statusCode)
+            assertEquals("Hello from index", response.text)
+        }
+    }
+
+    @Test
     internal fun `should return not found for any other path`() {
         client.withSiteRunning {
             val response = get("/other-path")

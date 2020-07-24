@@ -19,6 +19,19 @@ class SiteTransformsJadeFiles : FeatureWithExampleSite("/site-with-jade-files") 
     }
 
     @Test
+    internal fun `should compile jade index`() {
+        client.withSiteRunning {
+            val response = get("/")
+            assertEquals(200, response.statusCode)
+            assertEquals(
+                //language=HTML
+                "<h1>Hello from Jade</h1>",
+                response.text
+            )
+        }
+    }
+
+    @Test
     internal fun `should return 404 when no markdown file would have requested url`() {
         client.withSiteRunning {
             val response = get("/non-existing.html")
