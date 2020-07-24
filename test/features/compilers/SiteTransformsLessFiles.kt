@@ -21,7 +21,7 @@ class SiteTransformsLessFiles : FeatureWithExampleSite("/site-with-less-files") 
             assertEquals(
                 //language=CSS
                 expectedCss,
-                response.text.replace("\r", "")
+                response.text?.replace("\r", "")
             )
         }
     }

@@ -4,6 +4,8 @@ import io.undertow.Undertow
 import io.undertow.server.HttpHandler
 import io.undertow.server.HttpServerExchange
 import io.undertow.util.StatusCodes
+import kliche.shell.logger
+import java.nio.ByteBuffer
 import java.nio.file.Path
 
 class Site(sitePath: Path, overridePort: Int? = null) : HttpHandler {
@@ -36,7 +38,7 @@ class Site(sitePath: Path, overridePort: Int? = null) : HttpHandler {
                 .firstOrNull { it != null }
             if (response != null) {
                 exchange.statusCode = StatusCodes.OK
-                exchange.responseSender.send(response)
+                exchange.responseSender.send(ByteBuffer.wrap(response.bytes()))
             } else {
                 exchange.statusCode = StatusCodes.NOT_FOUND
                 exchange.responseSender.send(StatusCodes.NOT_FOUND_STRING)

@@ -2,14 +2,30 @@ package kliche
 
 import com.github.mustachejava.DefaultMustacheFactory
 import com.github.mustachejava.Mustache
+import org.apache.tika.Tika
 import java.io.File
 import java.io.StringReader
 import java.io.StringWriter
 import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 
+sealed class BytesConvertible {
+    abstract fun bytes(): ByteArray
+
+    class OfByteArray(private val byteArray: ByteArray) : BytesConvertible() {
+        override fun bytes() = byteArray
+    }
+
+    data class OfString(val string: String) : BytesConvertible() {
+        override fun bytes() = string.toByteArray()
+    }
+}
+
+fun ByteArray.bytesConvertible() = BytesConvertible.OfByteArray(this)
+fun String.bytesConvertible() = BytesConvertible.OfString(this)
+
 interface ContentProvider {
-    fun get(requestPath: String): String?
+    fun get(requestPath: String): BytesConvertible?
 }
 
 class LayoutProvider(
@@ -33,13 +49,13 @@ class LayoutProvider(
         )
     }
 
-    override fun get(requestPath: String): String? {
+    override fun get(requestPath: String): BytesConvertible? {
         val content = contentProvider.get(requestPath)
-        return if (requestPath.endsWith(".html")) {
-            content?.let {
+        return if (requestPath.endsWith(".html") && content is BytesConvertible.OfString) {
+            content.let {
                 StringWriter().also { sb ->
-                    mustache.execute(sb, mapOf("content" to it))
-                }.toString()
+                    mustache.execute(sb, mapOf("content" to it.string))
+                }.toString().bytesConvertible()
             }
         } else {
             content
@@ -48,8 +64,8 @@ class LayoutProvider(
 }
 
 class EmbeddedContentProvider(private val routes: Map<String, String>) : ContentProvider {
-    override fun get(requestPath: String): String? {
-        return routes[requestPath]
+    override fun get(requestPath: String): BytesConvertible? {
+        return routes[requestPath]?.bytesConvertible()
     }
 }
 
@@ -60,22 +76,36 @@ class StaticContentProvider(private val basePath: Path) : ContentProvider {
     override fun get(requestPath: String) =
         when {
             this.has(requestPath) ->
-                basePath.resolve(requestPath.removePrefix("/")).toFile().readTextIfFile()
+                basePath.resolve(requestPath.removePrefix("/"))
+                    .toFile().readFileToBytesConvertible()
             else -> null
         }
 }
 
-private fun File.readTextIfFile() = when {
-    this.isFile -> this.readText()
+private fun File.readFileToBytesConvertible() = when {
+    this.isFile -> {
+        if (probablyIsText(this.toPath())) {
+            this.readText().bytesConvertible()
+        } else {
+            this.readBytes().bytesConvertible()
+        }
+    }
     else -> null
 }
+
+val tika = lazy { Tika() }
+
+private fun probablyIsText(path: Path) =
+    tika.value.detect(path).startsWith("text")
 
 class SourceFilesContentProvider(
     sourceFilesPath: Path,
     val compilers: List<SourceFileCompiler>
 ) : ContentProvider {
 
-    val routes = mutableMapOf<String, Pair<Path, SourceFileCompiler>>()
+    val routes = mutableMapOf<String, FileWithCompiler>()
+
+    data class FileWithCompiler(val filePath: Path, val compiler: SourceFileCompiler)
 
     private val visitor = object : SimpleFileVisitor<Path>() {
         override fun visitFile(
@@ -87,7 +117,7 @@ class SourceFilesContentProvider(
                 ?.also {
                     val generatedFilename =
                         sourceFilesPath.relativize(it.generatedFileName(file)).toString()
-                    routes[generatedFilename] = Pair(file, it)
+                    routes[generatedFilename] = FileWithCompiler(file, it)
                 }
             return FileVisitResult.CONTINUE
         }
@@ -97,9 +127,13 @@ class SourceFilesContentProvider(
         Files.walkFileTree(sourceFilesPath, this.visitor)
     }
 
-    override fun get(requestPath: String): String? {
+    override fun get(requestPath: String): BytesConvertible? {
         return routes[requestPath.removePrefix("/")]?.let {
-            it.second.compile(it.first)
+            if (probablyIsText(it.filePath)) {
+                it.compiler.compile(it.filePath).bytesConvertible()
+            } else {
+                it.filePath.toFile().readFileToBytesConvertible()
+            }
         }
     }
 }

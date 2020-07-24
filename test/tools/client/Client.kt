@@ -7,6 +7,7 @@ import org.testcontainers.containers.GenericContainer
 import java.io.Closeable
 import java.io.IOException
 import java.net.Socket
+import java.nio.charset.Charset
 import kotlin.concurrent.thread
 
 class Client(private val site: Site? = null) {
@@ -16,16 +17,14 @@ class Client(private val site: Site? = null) {
 
     class SiteClientOps(private val site: Site) : ClientOps {
         override fun get(path: String): Response {
-            val response = "${site.baseUri}${path}".httpGet()
-            return Response(response.code(), response.body()?.string() ?: "")
+            return "${site.baseUri}${path}".httpGet().let(::mapResponseFromOkHttp)
         }
     }
 
     class ContainerClientOps(private val container: GenericContainer<*>) : ClientOps {
         override fun get(path: String): Response {
-            val response =
-                "http://${container.getHost()}:${container.getFirstMappedPort()}".httpGet()
-            return Response(response.code(), response.body()?.string() ?: "")
+            return "http://${container.getHost()}:${container.getFirstMappedPort()}"
+                .httpGet().let(::mapResponseFromOkHttp)
         }
     }
 
@@ -80,4 +79,11 @@ class Client(private val site: Site? = null) {
         fun forSite(site: Site) = Client(site)
         fun forContainer() = Client()
     }
+}
+
+internal fun mapResponseFromOkHttp(response: okhttp3.Response): Response {
+    val bytes = response.body()?.bytes()
+    return Response(
+        response.code(), bytes?.toString(Charset.defaultCharset()), bytes
+    )
 }

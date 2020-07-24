@@ -1,6 +1,7 @@
 package features
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import tools.FeatureWithExampleSite
 
@@ -11,6 +12,17 @@ class SiteShowsStaticContentFromFileSystem: FeatureWithExampleSite("/static-cont
             val response = get("/hello.txt")
             assertEquals(200, response.statusCode)
             assertEquals("Hello, world!", response.text)
+        }
+    }
+
+    @Test
+    internal fun `should return binary content as well`() {
+        val pngFileBytes = SiteShowsStaticContentFromFileSystem::class.java
+            .getResource("/static-content-site/static-files/pngfile.png").readBytes()
+        client.withSiteRunning {
+            val response = get("/pngfile.png")
+            assertEquals(200, response.statusCode)
+            assertTrue(pngFileBytes.contentEquals(response.bytes!!))
         }
     }
 
