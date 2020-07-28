@@ -2,37 +2,51 @@ package kliche
 
 import com.github.mustachejava.DefaultMustacheFactory
 import com.github.mustachejava.Mustache
+import io.undertow.server.HttpHandler
+import io.undertow.server.handlers.resource.CachingResourceManager
+import io.undertow.server.handlers.resource.FileResourceManager
+import io.undertow.server.handlers.resource.ResourceHandler
+import io.undertow.util.StatusCodes
 import org.apache.tika.Tika
 import java.io.File
 import java.io.StringReader
 import java.io.StringWriter
+import java.nio.ByteBuffer
 import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 
 sealed class BytesConvertible {
     abstract fun bytes(): ByteArray
 
-    class OfByteArray(private val byteArray: ByteArray) : BytesConvertible() {
-        override fun bytes() = byteArray
-    }
-
     data class OfString(val string: String) : BytesConvertible() {
         override fun bytes() = string.toByteArray()
     }
 }
 
-fun ByteArray.bytesConvertible() = BytesConvertible.OfByteArray(this)
 fun String.bytesConvertible() = BytesConvertible.OfString(this)
 
 interface ContentProvider {
+    fun toHandler(next: HttpHandler? = null): HttpHandler
+}
+
+interface FullContentProvider : ContentProvider {
     fun get(requestPath: String): BytesConvertible?
+
+    override fun toHandler(next: HttpHandler?): HttpHandler {
+        return HttpHandler { exchange ->
+            get(exchange.requestPath)?.also {
+                exchange.statusCode = StatusCodes.OK
+                exchange.responseSender.send(ByteBuffer.wrap(it.bytes()))
+            } ?: next?.handleRequest(exchange)
+        }
+    }
 }
 
 class LayoutProvider(
     layoutFilePath: Path,
-    private val contentProvider: ContentProvider,
+    private val contentProvider: FullContentProvider,
     compilers: List<SourceFileCompiler>?
-) : ContentProvider {
+) : FullContentProvider {
 
     private val mustache: Mustache
 
@@ -52,7 +66,8 @@ class LayoutProvider(
     override fun get(requestPath: String): BytesConvertible? {
         val content = contentProvider.get(requestPath)
         return if ((requestPath.endsWith(".html") || requestPath.lastIndexOf(".") == -1)
-            && content is BytesConvertible.OfString) {
+            && content is BytesConvertible.OfString
+        ) {
             content.let {
                 StringWriter().also { sb ->
                     mustache.execute(sb, mapOf("content" to it.string))
@@ -64,44 +79,18 @@ class LayoutProvider(
     }
 }
 
-class EmbeddedContentProvider(private val routes: Map<String, String>) : ContentProvider {
+class EmbeddedContentProvider(private val routes: Map<String, String>) :
+    FullContentProvider {
+
     override fun get(requestPath: String): BytesConvertible? {
         return routes[requestPath]?.bytesConvertible()
     }
 }
 
 class StaticContentProvider(private val basePath: Path) : ContentProvider {
-    private fun has(requestPath: String) =
-        Files.exists(basePath.resolve(requestPath.removePrefix("/")))
-
-    override fun get(requestPath: String) =
-        when {
-            this.has(requestPath) ->
-                basePath.resolve(requestPath.removePrefix("/"))
-                    .toFile().readFileToBytesConvertible()
-            else -> null
-        }
-}
-
-private fun File.readFileToBytesConvertible() = when {
-    this.isFile -> {
-        if (probablyIsText(this.toPath())) {
-            this.readText().bytesConvertible()
-        } else {
-            this.readBytes().bytesConvertible()
-        }
-    }
-    this.isDirectory -> {
-        val indexes = this.list { _, name ->
-            isIndexfile(this.resolve(name).toPath())
-        }
-        if (indexes?.isNotEmpty() == true) {
-            this.resolve(indexes[0]).readText().bytesConvertible()
-        } else {
-            null
-        }
-    }
-    else -> null
+    override fun toHandler(next: HttpHandler?) =
+        ResourceHandler(FileResourceManager(basePath.toFile()), next)
+            .setWelcomeFiles("index.html")
 }
 
 private fun isIndexfile(path: Path) =
@@ -115,7 +104,7 @@ private fun probablyIsText(path: Path) =
 class SourceFilesContentProvider(
     sourceFilesPath: Path,
     val compilers: List<SourceFileCompiler>
-) : ContentProvider {
+) : FullContentProvider {
 
     val routes = mutableMapOf<String, FileWithCompiler>()
 

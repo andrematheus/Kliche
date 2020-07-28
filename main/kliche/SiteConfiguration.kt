@@ -65,7 +65,7 @@ class TomlStringConfiguration(
             "source-files" -> this.buildSourceFilesProviderFromconfiguration(it)
             else -> throw InvalidSiteConfiguration("Invalid type: $type")
         }
-        return if (it.contains("layout")) {
+        return if (it.contains("layout") && contentProvider is FullContentProvider) {
             val compilers = buildSourceFilesCompilersFromConfiguration(it)
             LayoutProvider(
                 basePath.resolve(it.getString("layout")!!),
