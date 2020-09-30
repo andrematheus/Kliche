@@ -17,7 +17,7 @@ class SiteCanRunWithDocker {
     init {
         println("Building kliche image...")
         ImageFromDockerfile("kliche", false)
-            .withDockerfile(Path.of("./Dockerfile"))
+            .withDockerfile(Path.of("../Dockerfile"))
             .get()
         println("done.")
     }

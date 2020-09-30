@@ -13,7 +13,7 @@ RUN GRADLE_OPTS="-Xmx256m" gradle assemble fatJar --build-cache --stacktrace --n
 
 FROM openjdk:11
 RUN mkdir -p /srv/kliche/
-COPY --from=builder /usr/src/kliche/build/libs/Kliche-1.0-SNAPSHOT-all.jar /srv/kliche/Kliche.jar
+COPY --from=builder /usr/src/kliche/backend/build/libs/backend-1.0-SNAPSHOT-all.jar /srv/kliche/Kliche.jar
 RUN mkdir -p /srv/site/
 WORKDIR /srv/site/
 ENV PORT ''
