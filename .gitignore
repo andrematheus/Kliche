@@ -117,3 +117,5 @@ gradle-app.setting
 VERSION
 
 .build-cache
+
+tmp
